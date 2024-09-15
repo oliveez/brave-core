@@ -309,6 +309,15 @@ class TabManager: NSObject {
     })
   }
 
+  func resetLockdownWebpage(domain: Domain) {
+    resetConfiguration()
+    allTabs.filter({
+      $0.webView != nil && $0.webView?.url?.domainURL.absoluteString == domain.url
+    }).forEach({
+      $0.resetWebView(config: configuration)
+    })
+  }
+
   func clearTabHistory(_ completion: (() -> Void)? = nil) {
     allTabs.filter({ $0.webView != nil }).forEach({
       $0.clearHistory(config: configuration)

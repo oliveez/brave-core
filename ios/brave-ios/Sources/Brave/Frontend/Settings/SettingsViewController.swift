@@ -868,6 +868,21 @@ class SettingsViewController: TableViewController {
           image: UIImage(braveSystemNamed: "leo.outside"),
           accessory: .disclosureIndicator
         ),
+        Row(
+          text: Strings.lockdownModeExclude,
+          selection: {
+            [unowned self] in
+            let controller = UIHostingController(
+              rootView: LockdownModeSettingsView(tabManager: self.tabManager).environment(
+                \.managedObjectContext,
+                DataController.swiftUIContext
+              )
+            )
+            self.navigationController?.pushViewController(controller, animated: true)
+          },
+          image: UIImage(systemName: "hand.raised"),
+          accessory: .disclosureIndicator
+        ),
       ]
     )
   }()

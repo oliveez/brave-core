@@ -3602,6 +3602,13 @@ extension Strings {
     value: "Disable Lockdown Mode",
     comment: ""
   )
+  public static let lockdownModeExclude = NSLocalizedString(
+    "LockdownModeExclude",
+    tableName: "BraveShared",
+    bundle: .module,
+    value: "Lockdown Mode Exclude",
+    comment: ""
+  )
   public static let fingerprintingProtectionDescription = NSLocalizedString(
     "FingerprintingProtectionDescription",
     tableName: "BraveShared",
