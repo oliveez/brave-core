@@ -74,6 +74,7 @@
     </entity>
     <entity name="Domain" representedClassName="Data.Domain" syncable="YES">
         <attribute name="blockedFromTopSites" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="lockdown_disabled" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="shield_adblockAndTp" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <attribute name="shield_allOff" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <attribute name="shield_blockAdsAndTrackingLevel" optional="YES" attributeType="String"/>

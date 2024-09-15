@@ -516,6 +516,27 @@ extension BrowserViewController: WKNavigationDelegate {
         }
       }
 
+      // @property (null_resettable, nonatomic, copy) WKWebpagePreferences *defaultWebpagePreferences WK_API_AVAILABLE(macos(10.15), ios(13.0));
+      // The `defaultWebpagePreferences` property holds a copy of the default webpage preferences, serving as a template for all websites.
+      // The `isLockdownModeEnabled` property of `defaultWebpagePreferences` should not be modified directly in any tab at any time.
+      // This design ensures that the Lockdown Mode status of the device is accurately reflected and avoiding user-defined website policy
+      // Check Domain database for lockdown mode disabled domain
+      let domainLockdownDisableStatus = Domain.getOrCreate(
+        forUrl: requestURL,
+        persistent: true
+      ).lockdown_disabled
+      let defaultConfiguration = webView.configuration.defaultWebpagePreferences!
+      let deviceLockdownModeStatus = defaultConfiguration.isLockdownModeEnabled
+      Preferences.Shields.deviceLockdownStatus.value = deviceLockdownModeStatus
+      // Apple disallows modification of lockdown mode if browser entitlement is not available, and abort main process if violated.
+      // MDM enrolled iOS family device may use "com.apple.private.allow-ldm-exempt-webview" entitlement with newer version of WebKit.
+      // See https://github.com/WebKit/WebKit/commit/ee77044edb549dc49236ff5a21aea503cd87331a
+      // We only modify current domain's lockdown mode setting when the user has Lockdown Mode enabled on device
+      // If some lockdown_disabled in Domain is nil, isLockdownModeEnabled is untouched and handled by system.
+      if deviceLockdownModeStatus, let lockdownDisable = domainLockdownDisableStatus?.boolValue {
+        preferences.isLockdownModeEnabled = !lockdownDisable
+      }
+
       pendingRequests[requestURL.absoluteString] = navigationAction.request
 
       // Adblock logic,
@@ -729,12 +750,22 @@ extension BrowserViewController: WKNavigationDelegate {
     // We can only show this content in the web view if this web view is not pending
     // download via the context menu.
     var canShowInWebView = navigationResponse.canShowMIMEType && (webView != pendingDownloadWebView)
-    
+
     // If device has lockdown mode enabled and response domain has lockdown mode disabled
-    let deviceLockdownModeStatus = webView.configuration.defaultWebpagePreferences.isLockdownModeEnabled
+    let defaultConfiguration = webView.configuration.defaultWebpagePreferences!
+    let deviceLockdownModeStatus = defaultConfiguration.isLockdownModeEnabled
+    var domainLockdownDisableStatus: Bool = false
+    if let url = responseURL {
+      domainLockdownDisableStatus =
+        Domain.getOrCreate(
+          forUrl: url,
+          persistent: true
+        )
+        .lockdown_disabled?.boolValue ?? false
+    }
     let noResponsePreview: Bool = MIMEType.cannotShowInLockdownWebView(response.mimeType ?? "")
-    
-    if deviceLockdownModeStatus && noResponsePreview {
+
+    if deviceLockdownModeStatus && !domainLockdownDisableStatus && noResponsePreview {
       canShowInWebView = false
     }
     let forceDownload = webView == pendingDownloadWebView

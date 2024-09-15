@@ -228,6 +228,17 @@ struct ShieldsPanelView: View {
         actionCallback(.changedShieldSettings)
       }
     }
+    if viewModel.deviceLockedDown {
+      ShieldSettingRow {
+        ToggleView(
+          title: Strings.lockdownModeDisable,
+          subtitle: nil,
+          toggle: $viewModel.lockdownModeDomainDisable
+        ) { _ in
+          actionCallback(.changedShieldSettings)
+        }
+      }
+    }
     if FeatureList.kBraveShredFeature.enabled {
       ShieldSettingRow {
         NavigationLink {

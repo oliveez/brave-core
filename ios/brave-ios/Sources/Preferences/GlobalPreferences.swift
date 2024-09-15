@@ -54,6 +54,11 @@ extension Preferences {
       key: "shields.fingerprinting-protection",
       default: true
     )
+    /// Detect device Lockdown Mode status
+    public static let deviceLockdownStatus = Option<Bool>(
+      key: "shields.device-lockdown-status",
+      default: false
+    )
     /// Enable redirecting of Google's AMP (Accelerated Mobile Page) to the original (non-AMP) pages
     public static let autoRedirectAMPPagesDeprecated = Option<Bool?>(
       key: "shields.auto-redirect-amp-pages",

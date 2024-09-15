@@ -34,6 +34,8 @@ public final class Domain: NSManagedObject, CRUD {
   @NSManaged public var shield_fpProtection: NSNumber?
   // swift-format-ignore
   @NSManaged public var shield_safeBrowsing: NSNumber?
+  // swift-format-ignore
+  @NSManaged public var lockdown_disabled: NSNumber?
 
   @NSManaged public var bookmarks: NSSet?
 
@@ -139,6 +141,10 @@ public final class Domain: NSManagedObject, CRUD {
 
   @MainActor public var areAllShieldsOff: Bool {
     return shield_allOff?.boolValue ?? false
+  }
+
+  @MainActor public var domainLockdownDisable: Bool {
+    return lockdown_disabled?.boolValue ?? false
   }
 
   /// A domain can be created in many places,

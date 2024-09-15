@@ -6,6 +6,7 @@
 import BraveShields
 import Data
 import Foundation
+import Preferences
 
 @MainActor
 class ShieldsSettingsViewModel: ObservableObject {
@@ -33,6 +34,12 @@ class ShieldsSettingsViewModel: ObservableObject {
       domain.shield_fpProtection = NSNumber(booleanLiteral: fingerprintProtection)
     }
   }
+  @Published var lockdownModeDomainDisable: Bool {
+    didSet {
+      domain.lockdown_disabled = NSNumber(booleanLiteral: lockdownModeDomainDisable)
+    }
+  }
+  @Published var deviceLockedDown: Bool = Preferences.Shields.deviceLockdownStatus.value
 
   var isPrivateBrowsing: Bool {
     return tab.isPrivate
@@ -49,9 +56,19 @@ class ShieldsSettingsViewModel: ObservableObject {
       considerAllShieldsOption: true
     )
     self.stats = tab.contentBlocker.stats
-
+    // Lockdown Mode is always enabled when lockdown_disabled in domain is nil or false
+    self.lockdownModeDomainDisable = domain.domainLockdownDisable
+    Preferences.Shields.deviceLockdownStatus.observe(from: self)
     tab.contentBlocker.statsDidChange = { [weak self] _ in
       self?.stats = tab.contentBlocker.stats
+    }
+  }
+}
+
+extension ShieldsSettingsViewModel: PreferencesObserver {
+  func preferencesDidChange(for key: String) {
+    if key == Preferences.Shields.deviceLockdownStatus.key {
+      deviceLockedDown = Preferences.Shields.deviceLockdownStatus.value
     }
   }
 }
