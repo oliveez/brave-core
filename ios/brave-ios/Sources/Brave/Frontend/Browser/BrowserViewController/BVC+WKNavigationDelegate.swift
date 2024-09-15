@@ -728,7 +728,15 @@ extension BrowserViewController: WKNavigationDelegate {
 
     // We can only show this content in the web view if this web view is not pending
     // download via the context menu.
-    let canShowInWebView = navigationResponse.canShowMIMEType && (webView != pendingDownloadWebView)
+    var canShowInWebView = navigationResponse.canShowMIMEType && (webView != pendingDownloadWebView)
+    
+    // If device has lockdown mode enabled and response domain has lockdown mode disabled
+    let deviceLockdownModeStatus = webView.configuration.defaultWebpagePreferences.isLockdownModeEnabled
+    let noResponsePreview: Bool = MIMEType.cannotShowInLockdownWebView(response.mimeType ?? "")
+    
+    if deviceLockdownModeStatus && noResponsePreview {
+      canShowInWebView = false
+    }
     let forceDownload = webView == pendingDownloadWebView
 
     let mimeTypesThatRequireSFSafariViewControllerHandling: [UTType] = [
